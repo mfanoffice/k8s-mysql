@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: mysql
+spec:
+  replicas: 1
+  serviceName: mysql
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: registry.cn-qingdao.aliyuncs.com/dataease/mysql:5.7.36
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 0.2
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: 'Csii@401'
+          ports:
+            - name: tcp
+              containerPort: 3306
+          volumeMounts:
+            - mountPath: /etc/mysql/conf.d/my.cnf
+              name: mysql-config
+              subPath: my.cnf
+            - mountPath: /var/lib/mysql
+              name: mysql-data
+              subPath: mysql
+      volumes:
+        - name: mysql-config
+          configMap:
+            name: mysql-config
+            defaultMode: 420
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data-pvc
