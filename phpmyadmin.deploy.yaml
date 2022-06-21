@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: phpmyadmin
+  namespace: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: phpmyadmin
+  template:
+    metadata:
+      labels:
+        app: phpmyadmin
+    spec:
+      containers:
+      - name: phpmyadmin
+        image: phpmyadmin
+        env:
+        - name: PMA_HOST
+          value: mysql-clusterip
+        - name: PMA_PORT
+          value: "3306"
+        - name: PMA_USER
+          value: root
+        - name: PMA_PASSWORD
+          value: Csii@401
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/phpmyadmin/config.inc.php
+          name: config-inc-php
+          subPath: config.inc.php
+      volumes:
+      - name: config-inc-php
+        configMap:
+          name: config.inc.php
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: phpmyadmin
+  namespace: mysql
+  labels:
+    name: phpmyadmin
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    nodePort: 30082
+    targetPort: 80
+    port: 80
+  selector:
+    app: phpmyadmin
