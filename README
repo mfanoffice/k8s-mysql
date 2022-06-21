@@ -1,0 +1,9 @@
+# 创建MySQL
+kubectl create -f mysql.configmap.yaml
+kubectl create -f mysql.pvc.yaml
+kubectl create -f mysql.deploy.yaml
+kubectl create -f mysql.svc.yaml
+
+# 创建phpmyadmin
+kubectl create configmap config.inc.php --from-file=config.inc.php -n mysql
+kubectl create -f phpmyadmin.deploy.yaml
